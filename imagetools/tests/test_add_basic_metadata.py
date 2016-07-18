@@ -1,12 +1,10 @@
 import unittest
 import os
 import json
-
+from tempfile import mkdtemp
 
 from imagetools.bin import add_basic_metadata as basic
 from gi.repository import GExiv2
-from tempfile import mkdtemp
-
 
 
 class TestAddBasicMetadata(unittest.TestCase):
@@ -30,4 +28,3 @@ class TestAddBasicMetadata(unittest.TestCase):
         assert out_plant_info["plant_part"] == "Leaf"
         assert out_plant_info["assay"] == "NSF1"
         assert out_plant_info["project"] == "NSF"
-        
