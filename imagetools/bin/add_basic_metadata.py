@@ -7,10 +7,6 @@ import argparse
 from imagetools.utils.utils import RandomNameSequence, add_json_metadata
 
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PLANTS = {'NSF1': os.path.join(SCRIPT_DIR, 'NSF1_plants.csv'),
-          'NSF2': os.path.join(SCRIPT_DIR, 'NSF2_plants.csv')}
-
 NAMER = RandomNameSequence()
 
 
