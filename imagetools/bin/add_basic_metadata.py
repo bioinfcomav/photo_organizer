@@ -2,7 +2,6 @@
 
 import csv
 import os
-import sys
 import shutil
 import argparse
 from imagetools.utils.utils import RandomNameSequence, add_json_metadata
@@ -25,7 +24,7 @@ def _copy_file(fpath, out_dir, plant_info):
     return dest_fpath
 
 
-def main():
+def define_arguments():
     parser = argparse.ArgumentParser(description='Add basic metadata to images')
     parser.add_argument('--csv', '-c', metavar='CSV', dest="in_fhand",
                         type=argparse.FileType('r'),
@@ -36,7 +35,11 @@ def main():
     parser.add_argument('--plant_part', '-p', metavar='part', dest="plant_part",
                         type=str, help="Part of the plant")
     args = parser.parse_args()
-    
+    return args
+
+
+def main():
+    args = define_arguments()
     if not os.path.exists(args.out_dir):
         os.mkdir(args.out_dir)
 
