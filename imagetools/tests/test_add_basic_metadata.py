@@ -3,7 +3,7 @@ import os
 import json
 from tempfile import mkdtemp
 
-from imagetools.bin import add_basic_metadata as basic
+from bin import add_basic_metadata as basic
 from gi.repository import GExiv2
 
 
@@ -18,8 +18,8 @@ class TestAddBasicMetadata(unittest.TestCase):
                       "image_id": "823d3a64-1bed-4840-bbca-9a4b409c7eda",
                       "plant_part": "Leaf", "assay": "NSF1",
                       "project": "NSF"}
-        out_fhand = mkdtemp()
-        out_fpath = basic._copy_file(in_image_fpath, out_fhand, plant_info)
+        out_dir = mkdtemp()
+        out_fpath = basic._copy_file(in_image_fpath, out_dir, plant_info)
         basic.add_json_metadata(plant_info, out_fpath)
         out_exif = GExiv2.Metadata(out_fpath)
         out_plant_info = json.loads(out_exif["Exif.Photo.UserComment"])

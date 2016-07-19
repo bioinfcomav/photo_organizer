@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import csv
 import os
 import json
@@ -6,8 +7,8 @@ import sys
 import shutil
 import argparse
 
-from imagetools.utils.utils import RandomNameSequence, add_json_metadata
-
+from imagetools.utils.utils import (RandomNameSequence, add_json_metadata,
+                                    is_image)
 from gi.repository import GExiv2
 
 
@@ -46,7 +47,7 @@ def _copy_file(fpath, out_dir, plant_info):
     return dest_fpath
 
 
-def get_metadata(fpath):
+def _get_metadata(fpath):
     exif = GExiv2.Metadata(fpath)
     metadata = json.loads(exif["Exif.Photo.UserComment"])
     if "img_id" not in metadata:
@@ -71,7 +72,6 @@ def define_arguments():
     return args
 
 
-
 def main():
     args = define_arguments()
     if os.path.exists(args.out_fpath):
@@ -80,11 +80,12 @@ def main():
     plants = parse_plants(args.csv)
     for fname in os.listdir(args.in_fpath):
         fhand = os.path.abspath(os.path.join(args.in_fpath, fname))
-        metadata = get_metadata(fhand)
-        plant_info = plants[metadata["plant_id"]]
-        plant_info.update(metadata)
-        out_fpath = _copy_file(fhand, args.out_fpath, plant_info)
-        add_json_metadata(plant_info, out_fpath)
+        if is_image(fhand):
+            metadata = _get_metadata(fhand)
+            plant_info = plants[metadata["plant_id"]]
+            plant_info.update(metadata)
+            out_fpath = _copy_file(fhand, args.out_fpath, plant_info)
+            add_json_metadata(plant_info, out_fpath)
 
 if __name__ == '__main__':
     main()

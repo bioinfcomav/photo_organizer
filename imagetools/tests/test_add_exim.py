@@ -4,7 +4,7 @@ import os
 import json
 
 from imagetools.utils.utils import add_json_metadata
-from imagetools.bin import add_exim as add
+from bin import add_metadata_and_organize_photos as add
 from gi.repository import GExiv2
 
 
@@ -21,8 +21,8 @@ class TestAddExim(unittest.TestCase):
                       "Accession": "test_accession",
                       "Synonym": "test_synonym"}
         plant_info.update(metadata)
-        out_fhand = mkdtemp()
-        out_fpath = add._copy_file(in_image_fpath, out_fhand, plant_info)
+        out_dir = mkdtemp()
+        out_fpath = add._copy_file(in_image_fpath, out_dir, plant_info)
         add_json_metadata(plant_info, out_fpath)
         out_exif = GExiv2.Metadata(out_fpath)
         out_plant_info = json.loads(out_exif["Exif.Photo.UserComment"])

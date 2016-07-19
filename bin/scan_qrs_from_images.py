@@ -8,12 +8,7 @@ from PIL import Image
 import zbarlight
 
 from imagetools.utils import conf
-
-
-def is_image(fpath):
-    if not os.path.isdir(fpath):
-        fbegin = open(fpath, 'rb').read(8)
-        return any([magic in fbegin for magic in conf.IMAGE_MAGIC_NUMBERS])
+from imagetools.utils.utils import is_image
 
 
 def convert_to_BW(image, threshold):
@@ -41,7 +36,8 @@ def define_arguments():
     parser.add_argument('--in_dir', '-i', metavar='fpath', dest='in_fpath',
                         type=str, help='FilePath with photos to be scanned')
     parser.add_argument('--out_fhand', '-o', metavar='fpath', dest='out_fhand',
-                        type=str, help='FilePath to CSV to be written')
+                        type=argparse.FileType('w'),
+                        help='FilePath to CSV to be written')
     parser.add_argument('--project', '-p', metavar='project', dest='project',
                         type=str, help='project')
     parser.add_argument('--assay', '-a', metavar='assay', dest='assay',
@@ -53,7 +49,7 @@ def define_arguments():
 
 def main():
     args = define_arguments()
-    out_fhand = open(args.out_fhand, 'w')
+    out_fhand = args.out_fhand
     out_fhand.write('fpath,plant_id,image_id,project,assay\n')
     for root, dirs, files in os.walk(args.in_fpath, topdown=False):
         for name in files:

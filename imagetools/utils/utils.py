@@ -3,6 +3,8 @@ import json
 
 from random import Random
 
+from imagetools.utils import conf
+
 from gi.repository import GExiv2
 
 
@@ -39,3 +41,9 @@ def add_json_metadata(metadata, fpath):
     json_metadata = json.dumps(metadata, sort_keys=True)
     exif["Exif.Photo.UserComment"] = json_metadata
     exif.save_file()
+
+
+def is_image(fpath):
+    if not os.path.isdir(fpath):
+        fbegin = open(fpath, 'rb').read(8)
+        return any([magic in fbegin for magic in conf.IMAGE_MAGIC_NUMBERS])
