@@ -1,11 +1,20 @@
 import os
 import json
-
+import shutil
 from random import Random
 
-from imagetools.utils import conf
-
+import gi
+gi.require_version('GExiv2', '0.10')
 from gi.repository import GExiv2
+
+
+IMAGE_MAGIC_NUMBERS = [b'\xFF\xD8\xFF\xE0', b'\xFF\xD8\xFF\xDB',
+                       b'\xFF\xD8\xFF\xE1',  # jpg
+                       b'\x42\x4D',  # bmp
+                       b'\x47\x49\x46\x38\x37\x61',
+                       b'\x47\x49\x46\x38\x39\x61',  # gif
+                       b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'  # png
+                       ]
 
 
 class RandomNameSequence:
@@ -46,4 +55,17 @@ def add_json_metadata(metadata, fpath):
 def is_image(fpath):
     if not os.path.isdir(fpath):
         fbegin = open(fpath, 'rb').read(8)
-        return any([magic in fbegin for magic in conf.IMAGE_MAGIC_NUMBERS])
+        return any([magic in fbegin for magic in IMAGE_MAGIC_NUMBERS])
+
+
+NAMER = RandomNameSequence()
+
+
+def copy_file(fpath, out_dir, plant_info):
+    random_code = next(NAMER)
+    fname = '{}_{}_{}.jpg'.format(plant_info['plant_id'],
+                                  plant_info['plant_part'],
+                                  random_code)
+    dest_fpath = os.path.join(out_dir, fname)
+    shutil.copy2(fpath, dest_fpath)
+    return dest_fpath
