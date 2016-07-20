@@ -3,7 +3,8 @@
 import csv
 import os
 import argparse
-from imagetools.utils.utils import add_json_metadata, copy_file
+from imagetools.utils import copy_file
+from imagetools.exif import add_json_metadata
 
 
 def define_arguments():

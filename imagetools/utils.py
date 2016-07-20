@@ -1,12 +1,6 @@
 import os
-import json
 import shutil
 from random import Random
-
-import gi
-gi.require_version('GExiv2', '0.10')
-from gi.repository import GExiv2
-
 
 IMAGE_MAGIC_NUMBERS = [b'\xFF\xD8\xFF\xE0', b'\xFF\xD8\xFF\xDB',
                        b'\xFF\xD8\xFF\xE1',  # jpg
@@ -44,21 +38,13 @@ class RandomNameSequence:
         letters = [choose(c) for dummy in range(8)]
         return ''.join(letters)
 
-
-def add_json_metadata(metadata, fpath):
-    exif = GExiv2.Metadata(fpath)
-    json_metadata = json.dumps(metadata, sort_keys=True)
-    exif["Exif.Photo.UserComment"] = json_metadata
-    exif.save_file()
+NAMER = RandomNameSequence()
 
 
 def is_image(fpath):
     if not os.path.isdir(fpath):
         fbegin = open(fpath, 'rb').read(8)
         return any([magic in fbegin for magic in IMAGE_MAGIC_NUMBERS])
-
-
-NAMER = RandomNameSequence()
 
 
 def copy_file(fpath, out_dir, plant_info):
