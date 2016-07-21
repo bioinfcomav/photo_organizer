@@ -105,15 +105,18 @@ class OrganizeAndAddMetadataTest(unittest.TestCase):
 
             assert os.listdir(out_dir2) == [accession]
             assert os.listdir(os.path.join(out_dir2, accession)) == [plant_part]
-            image_fname = os.listdir(os.path.join(out_dir2, accession,
-                                                  plant_part))[0]
-            image_fpath = os.path.join(out_dir2, accession, plant_part,
+            for image_fname in os.listdir(os.path.join(out_dir2, accession,
+                                                  plant_part)):
+                if image_fname == 'thumbnails':
+                    continue
+                image_fpath = os.path.join(out_dir2, accession, plant_part,
                                        image_fname)
-            new_metadata = get_metadata(image_fpath)
-            assert new_metadata['Accession'] == accession
-            assert new_metadata['replica'] == '1'
-            assert new_metadata['plant_part'] == plant_part
-
+            
+                new_metadata = get_metadata(image_fpath)
+                assert new_metadata['Accession'] == accession
+                assert new_metadata['replica'] == '1'
+                assert new_metadata['plant_part'] == plant_part
+                
         finally:
             shutil.rmtree(out_dir)
             shutil.rmtree(out_dir2)
