@@ -9,6 +9,7 @@ import imagetools
 from imagetools.utils import (is_image, create_organized_image_dir,
                               suggest_image_destiny)
 from imagetools.exif import add_json_metadata, get_metadata
+from imagetools.thumbnail import suggest_thumbnail_path, make_thumbnail
 
 
 def parse_plants(fhand, plant_part=None, assay=None):
@@ -62,6 +63,8 @@ def main():
             dest_fpath = suggest_image_destiny(plant_metadata, image_out_dir)
             shutil.copy(fpath, dest_fpath)
             add_json_metadata(plant_metadata, dest_fpath)
+            thumbnail_fpath = suggest_thumbnail_path(dest_fpath)
+            make_thumbnail(dest_fpath, thumbnail_fpath)
 
 
 if __name__ == '__main__':
