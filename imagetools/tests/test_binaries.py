@@ -3,7 +3,8 @@ import os
 import json
 import shutil
 import csv
-from tempfile import mkdtemp
+import sys
+from tempfile import mkdtemp, NamedTemporaryFile
 from os.path import join, dirname, abspath
 from subprocess import Popen, PIPE
 
@@ -48,10 +49,37 @@ class AddBasicMetadataTest(unittest.TestCase):
             shutil.rmtree(out_dir)
 
 
-class ScanBinaryTest():
-    pass
+class ScanBinaryTest(unittest.TestCase):
+    
+    def test_scan_binary(self):
+        binary = os.path.join(BIN_DIR, 'scan_qrs_from_images.py')
+        image_dir = os.path.join(TEST_DATA_DIR, "images")
+        project = "NSF"
+        assay = "NSF1"
+        mypy = sys.executable
+        cmd = [mypy, binary, '-i', image_dir, "-p", project, "-a", assay]
+        results_fpath = os.path.join(image_dir, "qr_codes.csv")
+        try:
+            process = Popen(cmd, stderr=PIPE, stdout=PIPE)
+            _, stderr = process.communicate()
+            if process.returncode:
+                print(stderr)
+            assert not process.returncode
+            entries = list(csv.DictReader(open(results_fpath), delimiter=','))
+            print(entries)
+            assert entries[0]["plant_id"] == '0F16NSF1CN02F01M004'
+            assert entries[0]['fpath'] == './IMG_1262.JPG'
+            assert entries[0]['image_id'] is not None
+            assert entries[1]['plant_id'] == ''
+            assert entries[2]['plant_id'] == '0F16NSF1CN02F01M011'
+        finally:
+            if os.path.exists(results_fpath):
+                os.remove(results_fpath)
+            
 
+        
 
+        
 class TestAddExim(unittest.TestCase):
 
     def test_add_exim(self):
@@ -76,5 +104,5 @@ class TestAddExim(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    import sys;sys.argv = ['', 'AddBasicMetadataTest']
+    import sys;sys.argv = ['', 'ScanBinaryTest']
     unittest.main()
