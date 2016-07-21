@@ -1,10 +1,9 @@
 import unittest
 import os
-import json
 import shutil
 import csv
 import sys
-from tempfile import mkdtemp, NamedTemporaryFile
+from tempfile import mkdtemp
 from os.path import join, dirname, abspath
 from subprocess import Popen, PIPE
 
