@@ -24,8 +24,8 @@ class AddBasicMetadataTest(unittest.TestCase):
         out_dir = mkdtemp()
         mypy = sys.executable
         cmd = [mypy, binary, '-c', csv_fpath, '-o', out_dir, '-p', 'leaf']
-
-        plant_entry = list(csv.DictReader(open(csv_fpath), delimiter=','))[0]
+        csv_fhand = open(csv_fpath)
+        plant_entry = list(csv.DictReader(csv_fhand, delimiter=','))[0]
 
         try:
             process = Popen(cmd, stderr=PIPE, stdout=PIPE)
@@ -43,6 +43,7 @@ class AddBasicMetadataTest(unittest.TestCase):
 
         finally:
             shutil.rmtree(out_dir)
+            csv_fhand.close()
 
 
 class ScanBinaryTest(unittest.TestCase):
@@ -77,29 +78,47 @@ class ScanBinaryTest(unittest.TestCase):
                 os.remove(results_fpath)
 
 
-class TestAddExim(unittest.TestCase):
+class OrganizeAndAddMetadataTest(unittest.TestCase):
 
-    def test_add_exim(self):
-        SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-        in_image_fpath = os.path.join(SCRIPT_DIR, 'data/images/test_add_exim.jpg')
-        metadata = json.loads(GExiv2.Metadata(in_image_fpath)["Exif.Photo.UserComment"])
-        assert type(metadata) == dict
-        assert "Accesion" not in metadata
-        assert "img_id" in metadata
-        plant_info = {"plant_id": '0F16NSF1CN02F01M011',
-                      "Accession": "test_accession",
-                      "Synonym": "test_synonym"}
-        plant_info.update(metadata)
+    def test_organize_and_add_bin(self):
+        binary = os.path.join(BIN_DIR, 'add_basic_metadata.py')
+        csv_fpath = join(TEST_DATA_DIR, 'test.csv')
         out_dir = mkdtemp()
-        out_fpath = add._copy_file(in_image_fpath, out_dir, plant_info)
-        add_json_metadata(plant_info, out_fpath)
-        out_exif = GExiv2.Metadata(out_fpath)
-        out_plant_info = json.loads(out_exif["Exif.Photo.UserComment"])
-        assert out_plant_info["Accession"] == "test_accession"
-        assert out_plant_info["Synonym"] == "test_synonym"
-        assert metadata["img_id"] == out_plant_info["img_id"]
+        mypy = sys.executable
+        plant_part = 'leaf'
+        cmd = [mypy, binary, '-c', csv_fpath, '-o', out_dir, '-p', 'leaf']
+        process = Popen(cmd, stderr=PIPE, stdout=PIPE)
+        process.communicate()
+        assert not process.returncode
 
+        try:
+            binary = os.path.join(BIN_DIR, 'add_metadata_and_organize_photos.py')
+            out_dir2 = mkdtemp()
+            plant_fpath = join(TEST_DATA_DIR, 'NSF1_plants.csv')
+            cmd = [sys.executable, binary, '-i', out_dir, '-o', out_dir2,
+                   '-p', plant_fpath]
+            process = Popen(cmd, stderr=PIPE, stdout=PIPE)
+            _, stderr = process.communicate()
+            if process.returncode:
+                print(stderr)
+            assert not process.returncode
+            accession = 'BGV007181'
+
+            assert os.listdir(out_dir2) == [accession]
+            assert os.listdir(os.path.join(out_dir2, accession)) == [plant_part]
+            image_fname = os.listdir(os.path.join(out_dir2, accession,
+                                                  plant_part))[0]
+            image_fpath = os.path.join(out_dir2, accession, plant_part,
+                                       image_fname)
+            new_metadata = get_metadata(image_fpath)
+            assert new_metadata['Accession'] == accession
+            assert new_metadata['replica'] == '1'
+            assert new_metadata['plant_part'] == plant_part
+
+        finally:
+            shutil.rmtree(out_dir)
+            shutil.rmtree(out_dir2)
 
 if __name__ == "__main__":
-    import sys;sys.argv = ['', 'ScanBinaryTest']
+    # import sys;sys.argv = ['', 'OrganizeAndAddMetadataTest']
     unittest.main()

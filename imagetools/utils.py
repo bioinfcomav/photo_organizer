@@ -2,13 +2,22 @@ import os
 import shutil
 from random import Random
 
-IMAGE_MAGIC_NUMBERS = [b'\xFF\xD8\xFF\xE0', b'\xFF\xD8\xFF\xDB',
-                       b'\xFF\xD8\xFF\xE1',  # jpg
-                       b'\x42\x4D',  # bmp
-                       b'\x47\x49\x46\x38\x37\x61',
-                       b'\x47\x49\x46\x38\x39\x61',  # gif
-                       b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'  # png
-                       ]
+# IMAGE_MAGIC_NUMBERS = [b'\xFF\xD8\xFF\xE0', b'\xFF\xD8\xFF\xDB',
+#                        b'\xFF\xD8\xFF\xE1',  # jpg
+#                        b'\x42\x4D',  # bmp
+#                        b'\x47\x49\x46\x38\x37\x61',
+#                        b'\x47\x49\x46\x38\x39\x61',  # gif
+#                        b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'  # png
+#                        ]
+MAGIC_NUMBERS_BY_FORMAT = {'jpg': [b'\xFF\xD8\xFF\xE0', b'\xFF\xD8\xFF\xDB',
+                                   b'\xFF\xD8\xFF\xE1'],
+                           'bmp': [b'\x42\x4D'],
+                           'gif': [b'\x47\x49\x46\x38\x39\x61',
+                                   b'\x47\x49\x46\x38\x37\x61'],
+                           'png': [b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A']}
+
+IMAGE_MAGIC_NUMBERS = [magic for magics in MAGIC_NUMBERS_BY_FORMAT.values()
+                       for magic in magics ]
 
 
 class RandomNameSequence:
@@ -47,6 +56,20 @@ def is_image(fpath):
         return any([magic in fbegin for magic in IMAGE_MAGIC_NUMBERS])
 
 
+def suggest_image_out_path(metadata, out_dir):
+    image_dest_dir = os.path.join(out_dir, metadata['Accession'],
+                                  metadata['plant_part'])
+    if not os.path.exists(image_dest_dir):
+        os.makedirs(image_dest_dir, exist_ok=True)
+
+    random_code = next(NAMER)
+    fname = '{}_{}_{}.jpg'.format(plant_info['plant_id'],
+                                  plant_info['plant_part'],
+                                  random_code)
+    dest_fpath = os.path.join(out_dir, fname)
+    return image_dest_dir
+
+
 def copy_file(fpath, out_dir, plant_info):
     random_code = next(NAMER)
     fname = '{}_{}_{}.jpg'.format(plant_info['plant_id'],
@@ -55,3 +78,11 @@ def copy_file(fpath, out_dir, plant_info):
     dest_fpath = os.path.join(out_dir, fname)
     shutil.copy2(fpath, dest_fpath)
     return dest_fpath
+
+
+def get_image_format(fpath):
+    fbegin = open(fpath, 'rb').read(8)
+    for format_, magics in MAGIC_NUMBERS_BY_FORMAT.items():
+        if fbegin in magics:
+            return format_
+    return None

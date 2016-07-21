@@ -26,11 +26,11 @@ def parse_plants(fhand, plant_part=None, assay=None):
     return plants
 
 
-def suggest_image_out_dir(image_fpath, metadata, out_dir):
+def suggest_image_out_dir(metadata, out_dir):
     image_dest_dir = os.path.join(out_dir, metadata['Accession'],
                                   metadata['plant_part'])
     if not os.path.exists(image_dest_dir):
-        os.mkdir(image_dest_dir)
+        os.makedirs(image_dest_dir, exist_ok=True)
     return image_dest_dir
 
 
