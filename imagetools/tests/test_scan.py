@@ -15,4 +15,3 @@ class ScanQrTest(unittest.TestCase):
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'AddBasicMetadataTest']
     unittest.main()
-
