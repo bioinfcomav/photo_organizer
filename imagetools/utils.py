@@ -1,5 +1,4 @@
 import os
-import shutil
 from random import Random
 
 # IMAGE_MAGIC_NUMBERS = [b'\xFF\xD8\xFF\xE0', b'\xFF\xD8\xFF\xDB',
@@ -17,7 +16,7 @@ MAGIC_NUMBERS_BY_FORMAT = {'jpg': [b'\xFF\xD8\xFF\xE0', b'\xFF\xD8\xFF\xDB',
                            'png': [b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A']}
 
 IMAGE_MAGIC_NUMBERS = [magic for magics in MAGIC_NUMBERS_BY_FORMAT.values()
-                       for magic in magics ]
+                       for magic in magics]
 
 
 class RandomNameSequence:
@@ -56,28 +55,19 @@ def is_image(fpath):
         return any([magic in fbegin for magic in IMAGE_MAGIC_NUMBERS])
 
 
-def suggest_image_out_path(metadata, out_dir):
+def suggest_image_destiny(metadata, dest_dir):
+    random_code = next(NAMER)
+    fname = '{}_{}_{}.jpg'.format(metadata['plant_id'], metadata['plant_part'],
+                                  random_code)
+    return os.path.join(dest_dir, fname)
+
+
+def create_organized_image_dir(metadata, out_dir):
     image_dest_dir = os.path.join(out_dir, metadata['Accession'],
                                   metadata['plant_part'])
     if not os.path.exists(image_dest_dir):
         os.makedirs(image_dest_dir, exist_ok=True)
-
-    random_code = next(NAMER)
-    fname = '{}_{}_{}.jpg'.format(plant_info['plant_id'],
-                                  plant_info['plant_part'],
-                                  random_code)
-    dest_fpath = os.path.join(out_dir, fname)
     return image_dest_dir
-
-
-def copy_file(fpath, out_dir, plant_info):
-    random_code = next(NAMER)
-    fname = '{}_{}_{}.jpg'.format(plant_info['plant_id'],
-                                  plant_info['plant_part'],
-                                  random_code)
-    dest_fpath = os.path.join(out_dir, fname)
-    shutil.copy2(fpath, dest_fpath)
-    return dest_fpath
 
 
 def get_image_format(fpath):

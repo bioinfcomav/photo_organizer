@@ -3,7 +3,8 @@
 import csv
 import os
 import argparse
-from imagetools.utils import copy_file
+import shutil
+from imagetools.utils import suggest_image_destiny
 from imagetools.exif import add_json_metadata
 
 
@@ -35,7 +36,8 @@ def main():
                       "assay": entry['assay'],
                       "project": entry['project'],
                       "plant_part": plant_part}
-        out_fpath = copy_file(fpath, out_dir, plant_info)
+        out_fpath = suggest_image_destiny(plant_info, out_dir)
+        shutil.copy(fpath, out_fpath)
         add_json_metadata(plant_info, out_fpath)
 
 if __name__ == '__main__':

@@ -3,9 +3,11 @@
 import csv
 import os
 import argparse
+import shutil
 
 import imagetools
-from imagetools.utils import is_image, copy_file
+from imagetools.utils import (is_image, create_organized_image_dir,
+                              suggest_image_destiny)
 from imagetools.exif import add_json_metadata, get_metadata
 
 
@@ -24,14 +26,6 @@ def parse_plants(fhand, plant_part=None, assay=None):
             plant_id = plant['plant_id']
             plants[plant_id] = plant
     return plants
-
-
-def suggest_image_out_dir(metadata, out_dir):
-    image_dest_dir = os.path.join(out_dir, metadata['Accession'],
-                                  metadata['plant_part'])
-    if not os.path.exists(image_dest_dir):
-        os.makedirs(image_dest_dir, exist_ok=True)
-    return image_dest_dir
 
 
 def define_arguments():
@@ -64,9 +58,10 @@ def main():
             plant_metadata.update(metadata)
             plant_metadata['version'] = imagetools.__version__
 
-            image_out_dir = suggest_image_out_dir(plant_metadata, out_dir)
-            out_fpath = copy_file(fpath, image_out_dir, plant_metadata)
-            add_json_metadata(plant_metadata, out_fpath)
+            image_out_dir = create_organized_image_dir(plant_metadata, out_dir)
+            dest_fpath = suggest_image_destiny(plant_metadata, image_out_dir)
+            shutil.copy(fpath, dest_fpath)
+            add_json_metadata(plant_metadata, dest_fpath)
 
 
 if __name__ == '__main__':
