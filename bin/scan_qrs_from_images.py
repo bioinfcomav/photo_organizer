@@ -18,9 +18,10 @@ def define_arguments():
     args = parser.parse_args()
     return args
 
+
 def _make_path_relative(path, root_dir):
     return path.replace(root_dir, '.')
-    
+
 
 def main():
     args = define_arguments()

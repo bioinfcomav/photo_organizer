@@ -9,10 +9,7 @@ from os.path import join, dirname, abspath
 from subprocess import Popen, PIPE
 
 import imagetools
-
-import gi
-gi.require_version('GExiv2', '0.10')
-from gi.repository import GExiv2
+from imagetools.exif import get_metadata
 
 
 BIN_DIR = abspath(join(dirname(imagetools.__file__), '..', 'bin'))
@@ -36,8 +33,7 @@ class AddBasicMetadataTest(unittest.TestCase):
             assert not process.returncode
 
             image_fpath = os.path.join(out_dir, os.listdir(out_dir)[0])
-            exif = GExiv2.Metadata(image_fpath)
-            out_plant_info = json.loads(exif["Exif.Photo.UserComment"])
+            out_plant_info = get_metadata(image_fpath)
 
             assert out_plant_info["plant_id"] == plant_entry["plant_id"]
             assert out_plant_info["image_id"] == plant_entry["image_id"]
@@ -50,7 +46,7 @@ class AddBasicMetadataTest(unittest.TestCase):
 
 
 class ScanBinaryTest(unittest.TestCase):
-    
+
     def test_scan_binary(self):
         binary = os.path.join(BIN_DIR, 'scan_qrs_from_images.py')
         image_dir = os.path.join(TEST_DATA_DIR, "images")
@@ -65,21 +61,22 @@ class ScanBinaryTest(unittest.TestCase):
             if process.returncode:
                 print(stderr)
             assert not process.returncode
-            entries = list(csv.DictReader(open(results_fpath), delimiter=','))
-            print(entries)
-            assert entries[0]["plant_id"] == '0F16NSF1CN02F01M004'
-            assert entries[0]['fpath'] == './IMG_1262.JPG'
-            assert entries[0]['image_id'] is not None
-            assert entries[1]['plant_id'] == ''
-            assert entries[2]['plant_id'] == '0F16NSF1CN02F01M011'
+            results_fhand = open(results_fpath)
+            entries = csv.DictReader(results_fhand, delimiter=',')
+            for entry in entries:
+                if entry['fpath'] == './IMG_1262.JPG':
+                    assert entry["plant_id"] == '0F16NSF1CN02F01M004'
+                elif entry['fpath'] == '1454932909053.jpg':
+                    assert not entry["plant_id"]
+                elif entry['fpath'] == 'test_add_exim.jpg':
+                    assert entry["plant_id"] == '0F16NSF1CN02F01M011'
+
         finally:
             if os.path.exists(results_fpath):
+                results_fhand.close()
                 os.remove(results_fpath)
-            
 
-        
 
-        
 class TestAddExim(unittest.TestCase):
 
     def test_add_exim(self):
