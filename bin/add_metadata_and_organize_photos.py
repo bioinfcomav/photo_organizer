@@ -48,7 +48,7 @@ def main():
     plants_fhand = args.plants
 
     if not os.path.exists(out_dir):
-        os.mkdir(args.out_fpath)
+        os.mkdir(args.out_dir)
     plants = parse_plants(plants_fhand)
 
     for fname in os.listdir(in_dir):
