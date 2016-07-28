@@ -6,8 +6,8 @@ THRESHOLD_VALUES = [128, 175, 236]
 
 def convert_to_BW(image, threshold):
     gray = image.convert('L')
-    bw = gray.point(lambda x: 0 if x < threshold else 255, '1')
-    return bw
+    image = gray.point(lambda x: 0 if x < threshold else 255, '1')
+    return gray
 
 
 def scan_qr(fpath):
