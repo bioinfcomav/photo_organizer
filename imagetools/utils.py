@@ -78,9 +78,9 @@ def get_image_format(fpath):
     return None
 
 
-def get_image_paths(directory):
-    for root, _, files in os.walk(directory, topdown=False):
-        for name in files:
-            fpath = os.path.join(root, name)
+def get_all_image_fpaths(dir_):
+    for root, _, fnames in os.walk(dir_):
+        for fname in fnames:
+            fpath = os.path.join(root, fname)
             if is_image(fpath):
                 yield fpath

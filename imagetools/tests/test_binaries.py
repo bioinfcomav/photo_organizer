@@ -3,7 +3,7 @@ import os
 import shutil
 import csv
 import sys
-from tempfile import mkdtemp
+from tempfile import mkdtemp, NamedTemporaryFile
 from os.path import join, dirname, abspath
 from subprocess import Popen, PIPE
 
@@ -70,7 +70,6 @@ class ScanBinaryTest(unittest.TestCase):
                     assert not entry["plant_id"]
                 elif entry['fpath'] == 'test_add_exim.jpg':
                     assert entry["plant_id"] == '0F16NSF1CN02F01M011'
-
         finally:
             if os.path.exists(results_fpath):
                 results_fhand.close()
@@ -121,6 +120,44 @@ class OrganizeAndAddMetadataTest(unittest.TestCase):
             shutil.rmtree(out_dir)
             shutil.rmtree(out_dir2)
 
+
+class ScanByDateBinaryTest(unittest.TestCase):
+
+    def test_scan_binary_by_date(self):
+        binary = os.path.join(BIN_DIR, 'add_qrs_by_date.py')
+        image_dir = os.path.join(TEST_DATA_DIR, "image_by_date")
+        project = "NSF"
+        assay = "NSF1"
+        results_fhand = NamedTemporaryFile(mode='tr')
+        mypy = sys.executable
+        cmd = [mypy, binary, '-i', image_dir, "-p", project, "-a", assay,
+               '-c', results_fhand.name]
+        try:
+            process = Popen(cmd, stderr=PIPE, stdout=PIPE)
+            _, stderr = process.communicate()
+            if process.returncode:
+                print(stderr)
+            assert not process.returncode
+            results_fhand2 = open(results_fhand.name, mode='rb')
+            entries = csv.DictReader(results_fhand, delimiter=',')
+            for entry in entries:
+                assert entry['fpath'] != './date_image_dir/IMG_4748.JPG'
+                assert entry['fpath'] != './date_image_dir/IMG_4757.JPG'
+                if entry['fpath'] == './date_image_dir/IMG_4749.JPG':
+                    assert entry["plant_id"] == '0F16NSF1CN06F03M100'
+                    assert entry['assay'] == assay
+                    assert entry['project'] == project
+                elif entry['fpath'] == './date_image_dir/IMG_4750.JPG':
+                    assert entry["plant_id"] == '0F16NSF1CN06F03M100'
+                elif entry['fpath'] == './date_image_dir/IMG_4758.JPG':
+                    assert entry["plant_id"] == '0F16NSF1CN06F03M101'
+                elif entry['fpath'] == './date_image_dir/IMG_4759.JPG':
+                    assert entry["plant_id"] == '0F16NSF1CN06F03M101'
+
+        finally:
+            results_fhand.close()
+            results_fhand2.close()
+
 if __name__ == "__main__":
-    # import sys;sys.argv = ['', 'OrganizeAndAddMetadataTest']
+    # import sys;sys.argv = ['', 'ScanBinaryTest']
     unittest.main()
