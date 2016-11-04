@@ -76,3 +76,11 @@ def get_image_format(fpath):
         if fbegin in magics:
             return format_
     return None
+
+
+def get_image_paths(directory):
+    for root, _, files in os.walk(directory, topdown=False):
+        for name in files:
+            fpath = os.path.join(root, name)
+            if is_image(fpath):
+                yield fpath
