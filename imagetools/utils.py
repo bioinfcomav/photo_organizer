@@ -56,9 +56,9 @@ def is_image(fpath):
 
 
 def suggest_image_destiny(metadata, dest_dir):
-    random_code = next(NAMER)
+    image_id = metadata['image_id']
     fname = '{}_{}_{}.jpg'.format(metadata['plant_id'], metadata['plant_part'],
-                                  random_code)
+                                  image_id)
     return os.path.join(dest_dir, fname)
 
 
