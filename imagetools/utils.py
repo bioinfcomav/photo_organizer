@@ -1,5 +1,7 @@
 import os
 from random import Random
+import subprocess
+
 
 # IMAGE_MAGIC_NUMBERS = [b'\xFF\xD8\xFF\xE0', b'\xFF\xD8\xFF\xDB',
 #                        b'\xFF\xD8\xFF\xE1',  # jpg
@@ -78,9 +80,20 @@ def get_image_format(fpath):
     return None
 
 
-def get_all_image_fpaths(dir_):
-    for root, _, fnames in os.walk(dir_):
+def get_all_image_fpaths(dirname, thumbnails=False):
+    for root, _, fnames in os.walk(dirname):
+        if 'thumbnails' in root and not thumbnails:
+            continue
         for fname in fnames:
             fpath = os.path.join(root, fname)
             if is_image(fpath):
                 yield fpath
+
+
+def get_image_signature(image_path):
+    cmd = ['identify', '-verbose', image_path]
+    result = subprocess.check_output(cmd)
+    for line in result.split('\n'):
+        if 'signature' in line:
+            return line.split(':')[1].strip()
+    raise
