@@ -12,11 +12,12 @@ def add_json_metadata(metadata, fpath):
 
 def get_metadata(fpath):
     exif = GExiv2.Metadata(fpath)
-    metadata = json.loads(exif.get_comment())
+    exif_comments = exif["Exif.Photo.UserComment"]
+    try:
+        metadata = json.loads(exif_comments)
+    except json.decoder.JSONDecodeError:
+        raise
     if "image_id" not in metadata:
-        msg = "Image doesn't have an Image_ID"
-        raise ValueError(msg)
-    if "plant_id" not in metadata:
-        msg = "Image doesn't have an Unique_ID"
+        msg = "Image doesn't have an Image_ID: {}"
         raise ValueError(msg)
     return metadata
