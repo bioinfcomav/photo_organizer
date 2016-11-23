@@ -1,6 +1,9 @@
 import json
+import warnings
 
-from gi.repository import GExiv2
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    from gi.repository import GExiv2
 
 
 def add_json_metadata(metadata, fpath):
@@ -10,8 +13,13 @@ def add_json_metadata(metadata, fpath):
     exif.save_file()
 
 
-def get_metadata(fpath):
+def get_exif_metadata(fpath):
     exif = GExiv2.Metadata(fpath)
+    return exif
+
+
+def get_exif_comments(fpath):
+    exif = get_exif_metadata(fpath)
     exif_comments = exif["Exif.Photo.UserComment"]
     try:
         metadata = json.loads(exif_comments)

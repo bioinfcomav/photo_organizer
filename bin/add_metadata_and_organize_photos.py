@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
+import argparse
 import csv
 import os
-import argparse
 import shutil
 
 import imagetools
+from imagetools.exif import add_json_metadata, get_exif_comments
+from imagetools.thumbnail import suggest_thumbnail_path, make_thumbnail
 from imagetools.utils import (is_image, create_organized_image_dir,
                               suggest_image_destiny)
-from imagetools.exif import add_json_metadata, get_metadata
-from imagetools.thumbnail import suggest_thumbnail_path, make_thumbnail
 
 
 def parse_plants(fhand, plant_part=None, assay=None):
@@ -54,7 +54,7 @@ def main():
     for fname in os.listdir(in_dir):
         fpath = os.path.join(in_dir, fname)
         if is_image(fpath):
-            metadata = get_metadata(fpath)
+            metadata = get_exif_comments(fpath)
             plant_metadata = plants[metadata["plant_id"]]
             plant_metadata.update(metadata)
             plant_metadata['version'] = imagetools.__version__

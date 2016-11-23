@@ -1,14 +1,14 @@
-import unittest
-import os
-import shutil
 import csv
+import os
+from os.path import join, dirname, abspath
+import shutil
+from subprocess import Popen, PIPE
 import sys
 from tempfile import mkdtemp, NamedTemporaryFile
-from os.path import join, dirname, abspath
-from subprocess import Popen, PIPE
+import unittest
 
 import imagetools
-from imagetools.exif import get_metadata
+from imagetools.exif import get_exif_comments
 
 
 BIN_DIR = abspath(join(dirname(imagetools.__file__), '..', 'bin'))
@@ -32,7 +32,7 @@ class AddBasicMetadataTest(unittest.TestCase):
             assert not process.returncode
 
             image_fpath = os.path.join(out_dir, os.listdir(out_dir)[0])
-            out_plant_info = get_metadata(image_fpath)
+            out_plant_info = get_exif_comments(image_fpath)
 
             assert out_plant_info["plant_id"] == plant_entry["plant_id"]
             assert out_plant_info["image_id"] == plant_entry["image_id"]
@@ -111,7 +111,7 @@ class OrganizeAndAddMetadataTest(unittest.TestCase):
                 image_fpath = os.path.join(out_dir2, accession, plant_part,
                                            image_fname)
 
-                new_metadata = get_metadata(image_fpath)
+                new_metadata = get_exif_comments(image_fpath)
                 assert new_metadata['Accession'] == accession
                 assert new_metadata['replica'] == '1'
                 assert new_metadata['plant_part'] == plant_part
