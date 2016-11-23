@@ -1,3 +1,10 @@
+# In order to install gi we have to:
+# sudo apt-get install libgexiv2-2 libgexiv2-dev
+# sudo apt-get install python-gobject
+# cd $VIRTUALENV/lib/python3/site-packages
+# ln -s /usr/lib/python3/dist-packages/gi .
+# ln -s /usr/lib/python3/dist-packages/pygobject-3.20.1.egg-info .
+
 import json
 import warnings
 
