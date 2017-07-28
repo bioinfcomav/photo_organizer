@@ -49,6 +49,7 @@ class RandomNameSequence:
         letters = [choose(c) for dummy in range(8)]
         return ''.join(letters)
 
+
 NAMER = RandomNameSequence()
 
 
@@ -58,10 +59,15 @@ def is_image(fpath):
         return any([magic in fbegin for magic in IMAGE_MAGIC_NUMBERS])
 
 
-def suggest_image_destiny(metadata, dest_dir):
-    image_id = metadata['image_id']
+def suggest_image_fname(metadata):
+    image_id = metadata['image_id'].split('-')[0]
     fname = '{}_{}_{}.jpg'.format(metadata['plant_id'], metadata['plant_part'],
                                   image_id)
+    return fname
+
+
+def suggest_image_destiny(metadata, dest_dir):
+    fname = suggest_image_fname(metadata)
     return os.path.join(dest_dir, fname)
 
 
